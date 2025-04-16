@@ -32,7 +32,128 @@
       <button id="enviar-pedido">Finalizar Pedido</button>
     </div>
   </main>
+  <script>
+    const carrinhoContainer = document.getElementById('carrinho-container');
+    const totalSpan = document.getElementById('total');
+    const btnEnviar = document.getElementById('enviar-pedido');
+    const dadosPagamento = document.getElementById('dados-pagamento');
+    const radiosPagamento = document.querySelectorAll('input[name="pagamento"]');
 
+    function carregarCarrinho() {
+      const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+      carrinhoContainer.innerHTML = '';
+      let total = 0;
+
+      carrinho.forEach((produto, index) => {
+        const subtotal = produto.preco * produto.quantidade;
+        total += subtotal;
+
+        const item = document.createElement('div');
+        item.classList.add('item-carrinho');
+        item.innerHTML = `
+          <img src="${produto.imagem}" alt="${produto.nome}" />
+          <div class="info">
+            <h3>${produto.nome}</h3>
+            <p>Preço: R$ ${produto.preco.toFixed(2).replace('.', ',')}</p>
+            <label>Qtd:
+              <input type="number" min="0" value="${produto.quantidade}" data-index="${index}" />
+            </label>
+          </div>
+        `;
+        carrinhoContainer.appendChild(item);
+      });
+
+      totalSpan.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+    }
+
+    carrinhoContainer.addEventListener('input', (e) => {
+      if (e.target.type === 'number') {
+        const index = e.target.getAttribute('data-index');
+        let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+        const novaQtd = parseInt(e.target.value);
+
+        if (novaQtd === 0) {
+          carrinho.splice(index, 1);
+        } else {
+          carrinho[index].quantidade = novaQtd;
+        }
+
+        localStorage.setItem('carrinho', JSON.stringify(carrinho));
+        carregarCarrinho();
+      }
+    });
+
+    function atualizarFormularioPagamento() {
+      const forma = document.querySelector('input[name="pagamento"]:checked').value;
+      dadosPagamento.innerHTML = '';
+
+      if (forma === 'Pix') {
+        dadosPagamento.innerHTML = `
+          <input type="text" id="nomePix" placeholder="Nome completo" required>
+          <input type="text" id="chavePix" placeholder="Chave Pix (CPF, e-mail ou telefone)" required>
+        `;
+      } else if (forma === 'Cartão') {
+        dadosPagamento.innerHTML = `
+          <input type="text" id="nomeCartao" placeholder="Nome completo" required>
+          <input type="email" id="emailCartao" placeholder="E-mail" required>
+          <input type="text" id="cpfCartao" placeholder="CPF" required>
+          <input type="text" id="numeroCartao" placeholder="Número do Cartão" required>
+          <input type="text" id="validadeCartao" placeholder="Validade (MM/AA)" required>
+          <input type="text" id="cvvCartao" placeholder="CVV" required>
+        `;
+      }
+    }
+
+    radiosPagamento.forEach(radio => {
+      radio.addEventListener('change', atualizarFormularioPagamento);
+    });
+
+    btnEnviar.addEventListener('click', () => {
+      const cep = document.getElementById('cep')?.value;
+      if (!cep || !/^\d{5}-?\d{3}$/.test(cep)) {
+        alert('Por favor, preencha um CEP válido (ex: 12345-678).');
+        return;
+      }
+
+      const formaSelecionada = document.querySelector('input[name="pagamento"]:checked').value;
+
+      if (formaSelecionada === 'Pix') {
+        const nome = document.getElementById('nomePix')?.value;
+        const chave = document.getElementById('chavePix')?.value;
+        if (!nome || !chave) {
+          alert('Preencha os dados do Pix corretamente!');
+          return;
+        }
+        alert(`Pedido enviado via Pix!\nNome: ${nome}\nChave Pix: ${chave}\nCEP: ${cep}`);
+      }
+
+      else if (formaSelecionada === 'Cartão') {
+        const nome = document.getElementById('nomeCartao')?.value;
+        const email = document.getElementById('emailCartao')?.value;
+        const cpf = document.getElementById('cpfCartao')?.value;
+        const numero = document.getElementById('numeroCartao')?.value;
+        const validade = document.getElementById('validadeCartao')?.value;
+        const cvv = document.getElementById('cvvCartao')?.value;
+
+        if (!nome || !email || !cpf || !numero || !validade || !cvv) {
+          alert('Preencha todos os dados do cartão!');
+          return;
+        }
+
+        alert(`Pedido enviado com Cartão!\nNome: ${nome}\nEmail: ${email}\nCEP: ${cep}`);
+      }
+
+      else if (formaSelecionada === 'Boleto') {
+        alert(`Pedido gerado via boleto!\nEnviaremos o código para seu e-mail.\nCEP: ${cep}`);
+      }
+
+      localStorage.removeItem('carrinho');
+      window.location.href = 'index.html';
+    });
+
+    carregarCarrinho();
+    atualizarFormularioPagamento();
+  </script>
   
 </body>
 </html>

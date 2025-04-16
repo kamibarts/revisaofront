@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Carrinho - TuPac Store</title>
+  <link rel="stylesheet" href="/css/style.css" />
+
+ 
+</head>
+<body>
+  <header>
+    <h1>Carrinho de Compras</h1>
+    <button onclick="window.location.href='index.html'">⬅️ Voltar</button>
+  </header>
+
+  <main>
+    <div id="carrinho-container"></div>
+
+    <div id="resumo">
+      <h2>Total: <span id="total">R$ 0,00</span></h2>
+
+      <div id="formas-pagamento">
+        <p><strong>Forma de Pagamento:</strong></p>
+        <label><input type="radio" name="pagamento" value="Pix" checked> Pix</label>
+        <label><input type="radio" name="pagamento" value="Cartão"> Cartão de Crédito</label>
+        <label><input type="radio" name="pagamento" value="Boleto"> Boleto</label>
+      </div>
+
+      <div id="dados-pagamento"></div>
+
+      <button id="enviar-pedido">Finalizar Pedido</button>
+    </div>
+  </main>
+
+  
+</body>
+</html>
